@@ -21,5 +21,9 @@ class MailController extends Controller
         
         //send mail
         Mail::to($request->email)->send(new MailClass($data));
+
+        return response()->json([
+            'message' => 'Mail sent successfully'
+        ], 200);
     }
 }
