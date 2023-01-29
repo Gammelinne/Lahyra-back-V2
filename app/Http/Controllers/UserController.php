@@ -9,21 +9,19 @@ use Illuminate\Auth\Events\Registered;
 
 class UserController extends Controller
 {
-
-    //index all users
+    //get all users
     public function index()
     {
         return User::all();
     }
-    //create user with passport
+
+    //create user
     public function create(Request $request)
     {
-        //validate request data
-        //need name, email and password, password_confirmation
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|confirmed',
+            'password' => 'required|string|confirmed', //password_confirmation is required
         ]);
         $user = User::create([
             'name' => $request->name,
@@ -43,8 +41,6 @@ class UserController extends Controller
     //login user with passport
     public function login(Request $request)
     {
-        //validate request data
-        //need email and password
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -55,6 +51,7 @@ class UserController extends Controller
                 'message' => 'Unauthorized'
             ], 401);
         }
+
         //get user if authenticated and return user and token
         $user = $request->user();
         $token = $user->createNewToken();
@@ -82,6 +79,7 @@ class UserController extends Controller
         }
     }
 
+    //Send email verification
     public function sendVerifyEmail(Request $request)
     {
         $request->user()->sendEmailVerificationNotification();
@@ -90,4 +88,13 @@ class UserController extends Controller
         ]);
     }
 
+    //delete user
+
+    public function delete(User $user)
+    {
+        $user->delete();
+        return response()->json([
+            'message' => 'User deleted successfully'
+        ]);
+    }
 }

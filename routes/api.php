@@ -29,17 +29,13 @@ Route::post('login', [UserController::class, 'login']);
 Route::post('logout', [UserController::class, 'logout']);
 //get all users with function index on UserController only if your are connected
 Route::get('user', [UserController::class, 'index'])->middleware(['auth:api', 'scope:admin']); 
-/*
-//sen email with function sendVerifyEmail on UserController
-Route::post('user/verify', [UserController::class, 'sendVerifyEmail'])->middleware(['auth:api', 'scope:user']);
-//verify email with function verify on UserController
-Route::get('user/verify/{id}/{hash}', [UserController::class, 'verifyEmail']);*/
+//delete user with function delete on UserController only if you are admin
+Route::delete('user/{id}', [UserController::class, 'delete'])->middleware(['auth:api', 'scope:admin']);
 
 /* Mail routes */
 
 //send mail with function send on MailController
 Route::post('mail', [MailController::class, 'send'])->middleware(['auth:api', 'scope:user']);
-
 
 // Verify email
 Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
@@ -53,3 +49,4 @@ Route::post('/email/verify/resend', function (Request $request) {
     ]);
 })   ->middleware(['auth:api', 'scope:user'])
     ->name('verification.send');
+
