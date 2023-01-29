@@ -8,8 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use App\Traits\Uuids;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable, HasApiTokens, Uuids;
 
@@ -31,8 +32,11 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
+        'id',
         'password',
         'remember_token',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -46,6 +50,7 @@ class User extends Authenticatable
 
     public function createNewToken()
     {
-        return $this->is_admin ? $this->createToken('admin', ['admin']) : $this->createToken('user', ['user']);
+        //create new token
+        return $this->is_admin ? $this->createToken('admin', ['admin', 'user']) : $this->createToken('user', ['user']);
     }
 }

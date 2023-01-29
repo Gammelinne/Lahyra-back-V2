@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Registered;
 
 class UserController extends Controller
 {
@@ -30,6 +31,8 @@ class UserController extends Controller
             'password' => bcrypt($request->password),
             'is_admin' => $request->admin_password == env('ADMIN_KEY') ? true : false,
         ]);
+
+        event(new Registered($user));
 
         //redirect to login
         return response()->json([
@@ -57,7 +60,6 @@ class UserController extends Controller
         $token = $user->createNewToken();
         return response()->json([
             'user' => $user,
-            'is_verified' => $user->email_verified_at ? true : false,
             'access_token' => $token->accessToken,
             'expires_at' => Carbon::parse(
                 $token->token->expires_at
@@ -80,23 +82,12 @@ class UserController extends Controller
         }
     }
 
-    //verify email
-    public function verifyEmail(Request $request)
+    public function sendVerifyEmail(Request $request)
     {
-       //verify token from url (ex: verify/{token}) in table verification_tokens
-        $token = $request->token;
-        $user = User::where('verification_token', $token)->first();
-        if ($user) {
-            $user->email_verified_at = Carbon::now();
-            $user->save();
-            return response()->json([
-                'message' => 'Email verified successfully'
-            ]);
-        } else {
-            return response()->json([
-                'message' => 'Email not verified'
-            ]);
-        }
-        
+        $request->user()->sendEmailVerificationNotification();
+        return response()->json([
+            'message' => 'Email sent'
+        ]);
     }
+
 }
