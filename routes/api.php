@@ -33,6 +33,10 @@ Route::post('logout', [UserController::class, 'logout']);
 Route::get('user', [UserController::class, 'index'])->middleware(['auth:api', 'scope:admin']); 
 //delete user with function delete on UserController only if you are admin
 Route::delete('user/{id}', [UserController::class, 'delete'])->middleware(['auth:api', 'scope:admin']);
+//get user with function show on UserController
+Route::get('user/{id}', [UserController::class, 'show'])->middleware(['auth:api', 'scope:user']);
+//update user with function update on UserController
+Route::put('user/{id}', [UserController::class, 'update'])->middleware(['auth:api', 'scope:user']);
 
 /* Mail routes */
 
@@ -40,25 +44,17 @@ Route::delete('user/{id}', [UserController::class, 'delete'])->middleware(['auth
 Route::post('mail', [MailController::class, 'send'])->middleware(['auth:api', 'scope:user']);
 
 // Verify email
-Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
-    ->name('verification.verify');
+Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke'])->name('verification.verify');
 
 // Resend link to verify email
 Route::post('/email/verify/resend', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
-    return response()->json([
-        'message' => 'Verification link sent'
-    ]);
-})   ->middleware(['auth:api', 'scope:user'])
-    ->name('verification.send');
+    return response()->json(['message' => 'Verification link sent']);
+})->middleware(['auth:api', 'scope:user'])->name('verification.send');
 
 //reset password
-
-
 Route::post('/forgot-password', [UserController::class, 'forgotPassword'])->name('password.email');
-
-Route::get('/reset-password/{token}', function (string $token) {
-    return redirect(env('FRONTEND_URL') . '/reset-password?token=' . $token);
-})->name('password.reset');
+//redirect to frontend after reset password
+Route::get('/reset-password/{token}', function (string $token) {return redirect(env('FRONTEND_URL') . '/reset-password?token=' . $token);})->name('password.reset');
 
 Route::post('/reset-password', [UserController::class, 'resetPassword'])->name('password.update');

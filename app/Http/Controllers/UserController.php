@@ -19,6 +19,27 @@ class UserController extends Controller
         return User::all();
     }
 
+    /* get user */
+    public function show(User $user)
+    {
+        return $user;
+    }
+
+    /* update user */
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users,email,' . $user->id, //email must be unique except current user
+            'password' => 'sometimes|nullable|string|confirmed', //password_confirmation is required
+        ]);
+        $user->update($request->all());
+
+        return response()->json([
+            'message' => 'User updated successfully'
+        ], 200);
+    }
+
     /* create user */
     public function create(Request $request)
     {
