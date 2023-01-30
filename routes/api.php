@@ -6,8 +6,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerifyEmailController;
 use App\Models\User;
-use Illuminate\Auth\Events\Verified;
-use Laravel\Passport\Http\Middleware\CheckClientCredentials;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -50,3 +52,13 @@ Route::post('/email/verify/resend', function (Request $request) {
 })   ->middleware(['auth:api', 'scope:user'])
     ->name('verification.send');
 
+//reset password
+
+
+Route::post('/forgot-password', [UserController::class, 'forgotPassword'])->name('password.email');
+
+Route::get('/reset-password/{token}', function (string $token) {
+    return redirect(env('FRONTEND_URL') . '/reset-password?token=' . $token);
+})->name('password.reset');
+
+Route::post('/reset-password', [UserController::class, 'resetPassword'])->name('password.update');

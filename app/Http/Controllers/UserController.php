@@ -4,18 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
-    //get all users
+    /* get all users */
     public function index()
     {
         return User::all();
     }
 
-    //create user
+    /* create user */
     public function create(Request $request)
     {
         $request->validate([
@@ -38,7 +42,7 @@ class UserController extends Controller
         ], 201);
     }
 
-    //login user with passport
+    /* login user */
     public function login(Request $request)
     {
         $request->validate([
@@ -51,8 +55,6 @@ class UserController extends Controller
                 'message' => 'Unauthorized'
             ], 401);
         }
-
-        //get user if authenticated and return user and token
         $user = $request->user();
         $token = $user->createNewToken();
         return response()->json([
@@ -64,7 +66,7 @@ class UserController extends Controller
         ]);
     }
     
-    //login user with passport
+    /* logout user */
     public function logout(Request $request)
     {
         try {
@@ -79,7 +81,8 @@ class UserController extends Controller
         }
     }
 
-    //Send email verification
+    /* verify email */
+
     public function sendVerifyEmail(Request $request)
     {
         $request->user()->sendEmailVerificationNotification();
@@ -88,7 +91,7 @@ class UserController extends Controller
         ]);
     }
 
-    //delete user
+    /* delete user */
 
     public function delete(User $user)
     {
@@ -97,4 +100,47 @@ class UserController extends Controller
             'message' => 'User deleted successfully'
         ]);
     }
+
+    /* send password reset link */
+
+    public function forgotPassword(Request $request){
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+     
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+     
+        return $status === Password::RESET_LINK_SENT
+                    ? response()->json(['message' => __($status)])
+                    : response()->json(['message' => __($status)]);
+    }
+
+    /* reset password */
+    public function resetPassword(Request $request){
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+     
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+     
+                $user->save();
+     
+                event(new PasswordReset($user));
+            }
+        );
+     
+        return $status === Password::PASSWORD_RESET
+                    ? response()->json(['message' => __($status)])
+                    : response()->json(['message' => __($status)]);
+    }
+
 }
