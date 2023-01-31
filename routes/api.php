@@ -1,15 +1,12 @@
 <?php
 
+use App\Events\Test;
 use App\Http\Controllers\MailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerifyEmailController;
-use App\Models\User;
-use Illuminate\Auth\Events\PasswordReset;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -58,3 +55,9 @@ Route::post('/forgot-password', [UserController::class, 'forgotPassword'])->name
 Route::get('/reset-password/{token}', function (string $token) {return redirect(env('FRONTEND_URL') . '/reset-password?token=' . $token);})->name('password.reset');
 
 Route::post('/reset-password', [UserController::class, 'resetPassword'])->name('password.update');
+
+
+Route::get('/test', function () {
+   event(new Test());
+   return 'event fired';
+});
