@@ -12,7 +12,8 @@ class BroadcastServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Broadcast::routes();
+        /* !!! Never change this line, It's to allow private channel !!! */
+        Broadcast::routes(['middleware' => ['auth:api', 'scope:user']]);
 
         require base_path('routes/channels.php');
     }

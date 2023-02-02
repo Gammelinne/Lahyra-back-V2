@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Test;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\PasswordReset;
@@ -54,8 +55,6 @@ class UserController extends Controller
             'password' => bcrypt($request->password),
             'is_admin' => $request->admin_password == env('ADMIN_KEY') ? true : false,
         ]);
-
-        event(new Registered($user));
 
         //redirect to login
         return response()->json([

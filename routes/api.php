@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\Message;
 use App\Events\Test;
 use App\Http\Controllers\MailController;
 use Illuminate\Http\Request;
@@ -57,7 +58,12 @@ Route::get('/reset-password/{token}', function (string $token) {return redirect(
 Route::post('/reset-password', [UserController::class, 'resetPassword'])->name('password.update');
 
 
-Route::get('/test', function () {
-   event(new Test());
+Route::get('/test', function ( Request $request ) {
+   event(new Test( $request->data));
    return 'event fired';
 });
+
+Route::get('/message', function ( Request $request ) {
+    event(new Message( $request->data));
+   return 'event fired';
+})->middleware(['auth:api', 'scope:user']);

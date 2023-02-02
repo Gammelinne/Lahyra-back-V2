@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Console\Scheduling\Event;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -13,14 +14,10 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
-});
-
-// Broadcast::channel('testchannel', function ($user) {
-//     return $user;
-// });
-
 Broadcast::channel('testchannel', function ($user) {
     return $user;
 }); 
+
+Broadcast::channel('message', function ($user) {
+    return $user;
+});

@@ -11,23 +11,28 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Request;
-class Test implements ShouldBroadcast
+
+class Message implements ShouldBroadcast
 {
-    
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    Public $data;
+
+    public $data;
+    /**
+     * Create a new event instance.
+     */
     public function __construct($data)
     {
-        
-        $this->data = [
-            'title' => 'Test',
-            'data' => $data,
-        ];
-        
-    }   
+        $this->data = $data;
+    }
 
-    public function broadcastOn() : PrivateChannel
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return array<int, \Illuminate\Broadcasting\Channel>
+     */
+    public function broadcastOn(): PrivateChannel
     {
-        return new PrivateChannel('testchannel');
+        return new PrivateChannel('message');
+        
     }
 }
