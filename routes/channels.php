@@ -21,3 +21,7 @@ Broadcast::channel('testchannel', function ($user) {
 Broadcast::channel('message', function ($user) {
     return $user;
 });
+
+// Broadcast::channel('message.{id}', function ($user, $id) {
+//     return $user->id === $id;
+// });

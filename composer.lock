@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7135bc26ddd89429b6a9a8fc6dccea24",
+    "content-hash": "d57be7f6c1a3fdca71d2e20466d76a2c",
     "packages": [
         {
             "name": "beyondcode/laravel-websockets",
@@ -1955,12 +1955,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "1503a9313ed87c1aa4e2b4f35ddf0213e8d6b0ac"
+                "reference": "4d41029532dfa82c47b624aed31eddff853ca76f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/1503a9313ed87c1aa4e2b4f35ddf0213e8d6b0ac",
-                "reference": "1503a9313ed87c1aa4e2b4f35ddf0213e8d6b0ac",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/4d41029532dfa82c47b624aed31eddff853ca76f",
+                "reference": "4d41029532dfa82c47b624aed31eddff853ca76f",
                 "shasum": ""
             },
             "require": {
@@ -2135,7 +2135,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2023-02-01T22:30:56+00:00"
+            "time": "2023-02-02T21:17:24+00:00"
         },
         {
             "name": "laravel/passport",
@@ -10909,7 +10909,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "8.2.1"
+        "php": "8.2.2"
     },
     "platform-dev": [],
     "plugin-api-version": "2.2.0"
