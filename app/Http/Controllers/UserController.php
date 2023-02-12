@@ -78,11 +78,14 @@ class UserController extends Controller
         $user = $request->user();
         $token = $user->createNewToken();
         return response()->json([
-            'user' => $user,
-            'access_token' => $token->accessToken,
-            'expires_at' => Carbon::parse(
-                $token->token->expires_at
-            )->toDateTimeString()
+            'user' => [
+                'user' => $user,
+                'access_token' => $token->accessToken,
+                'expires_at' => Carbon::parse(
+                    $token->token->expires_at
+                )->toDateTimeString()
+            ]
+
         ]);
     }
     

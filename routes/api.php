@@ -26,7 +26,7 @@ Route::post('user', [UserController::class, 'create']);
 //login user with function login on UserController
 Route::post('login', [UserController::class, 'login']);
 //logout user with function logout on UserController
-Route::post('logout', [UserController::class, 'logout']);
+Route::post('logout', [UserController::class, 'logout'])->middleware(['auth:api', 'scope:user']);
 //get all users with function index on UserController only if your are connected
 Route::get('user', [UserController::class, 'index'])->middleware(['auth:api', 'scope:admin']); 
 //delete user with function delete on UserController only if you are admin
