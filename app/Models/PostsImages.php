@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
-use App\Traits\Uuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Uuids;
 
-class Post_Commentary extends Model
+class PostsImages extends Model
 {
     use HasFactory;
     use Uuids;
 
     protected $fillable = [
-        'commentary',
+        'image',
         'user_id',
         'post_id',
     ];

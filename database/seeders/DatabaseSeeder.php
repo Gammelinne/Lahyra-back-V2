@@ -6,7 +6,9 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-
+use App\Models\Post;
+use App\Models\Friends;
+use App\Models\Notification;
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -14,11 +16,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(10)->create();
+        User::factory(50)->create();
+        Post::factory(30)->create();
+        Post::factory(10)->hasImages(3)->create();
+        Post::factory(10)->hasComments(3)->create();
+        Post::factory(10)->hasImages(3)->hasComments(3)->create();
+        Friends::factory(10)->create();
+        Notification::factory(100)->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        
     }
 }
