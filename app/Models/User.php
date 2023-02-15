@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use App\Traits\Uuids;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -21,11 +22,14 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
+        'username',
+        'avatar',
         'email',
+        'bio',
         'password',
         'is_admin',
     ];
-
+    
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -48,12 +52,37 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
     ];
 
-    
+
     public function posts()
     {
         return $this->hasMany(Post::class);
     }
 
+    public function friends()
+    {
+        //with friends table
+        return $this->hasMany(Friends::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(PostsImages::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(PostsCommentaries::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(PostsLikes::class);
+    }
+
+    public function commentariesLikes()
+    {
+        return $this->hasMany(PostsCommentariesLikes::class);
+    }
 
 
 

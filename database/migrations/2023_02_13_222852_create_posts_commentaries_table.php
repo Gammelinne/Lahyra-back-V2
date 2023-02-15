@@ -17,7 +17,6 @@ return new class extends Migration
             $table->uuid('post_id')->constrained('posts')->onDelete('cascade');
             $table->uuid('user_id')->constrained('users')->onDelete('cascade');
             $table->uuid('commentary_id')->nullable()->constrained('posts_commentaries')->onDelete('cascade');
-            $table->integer('likes')->default(0);
             $table->timestamps();
         });
     }
@@ -25,7 +24,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    
+
     public function down(): void
     {
         Schema::dropIfExists('posts_commentaries');

@@ -17,9 +17,12 @@ class FriendsFactory extends Factory
      */
     public function definition(): array
     {   
+        $user_id = User::all()->random()->id;
+        //friend_id is a user_id that is not the same as user_id
+        $friend_id = User::where('id', '!=', $user_id)->get()->random()->id;
         return [
-            'user_id' => User::all()->random()->id,
-            'friend_id' => User::all()->random()->id,
+            'user_id' => $user_id,
+            'friend_id' => $friend_id,
             'accepted' => $this->faker->boolean,
             'is_blocked' => $this->faker->boolean,
         ];

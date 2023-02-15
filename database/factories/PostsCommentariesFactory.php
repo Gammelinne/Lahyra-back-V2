@@ -22,7 +22,6 @@ class PostsCommentariesFactory extends Factory
     {
         return [
             'commentary' => $this->faker->sentence(10),
-            'likes' => $this->faker->numberBetween(0, 100),
             'user_id' => User::all()->random()->id,
             'post_id' => Post::all()->random()->id,
             'commentary_id' => rand(0, 10) == 10 ? PostsCommentaries::all()->random()->id : null,

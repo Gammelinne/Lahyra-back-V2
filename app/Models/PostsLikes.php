@@ -6,15 +6,12 @@ use App\Traits\Uuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PostsCommentaries extends Model
+class PostsLikes extends Model
 {
     use HasFactory;
     use Uuids;
 
     protected $fillable = [
-        'commentary',
-        'likes',
-        'commentary_id',
         'user_id',
         'post_id',
     ];
@@ -27,14 +24,5 @@ class PostsCommentaries extends Model
     public function post()
     {
         return $this->belongsTo(Post::class);
-    }
-
-    public function commentary()
-    {
-        return $this->belongsTo(PostsCommentaries::class);
-    }
-    public function likes()
-    {
-        return $this->hasMany(PostsCommentariesLikes::class);
     }
 }

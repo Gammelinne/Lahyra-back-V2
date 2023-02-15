@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PostsRessource;
+use App\Models\Friends;
 use App\Models\Post;
 use Illuminate\Http\Request;
 
@@ -80,8 +82,18 @@ class PostController extends Controller
 
     public function like(Post $post)
     {
-        $post->likes += 1;
+        $post->likes()->create([
+            'user_id' => auth()->user()->id,
+        ]);
         $post->save();
+
+        //create message event
+        event(new \App\Events\Message([
+            'like' => [
+                'user' => auth()->user(),
+                'post_id' => $post->id,
+            ],
+        ]));
 
         return response()->json([
             'message' => 'Post liked successfully',
@@ -91,8 +103,15 @@ class PostController extends Controller
 
     public function dislike(Post $post)
     {
-        $post->like -= 1;
+        $post->likes()->where('user_id', auth()->user()->id)->delete();
         $post->save();
+
+        event(new \App\Events\Message([
+            'dislike' => [
+                'user' => auth()->user(),
+                'post_id' => $post->id,
+            ],
+        ]));
 
         return response()->json([
             'message' => 'Post disliked successfully',
@@ -102,25 +121,28 @@ class PostController extends Controller
 
     public function comment(Request $request, Post $post)
     {
-        $request->validate([
-            'user_id' => 'required|uuid',
-            'comment' => 'required|string',
+        $user_id = auth()->user()->id;
+        $post->comments()->create([
+            'commentary' => $request->commentary,
+            'user_id' => $user_id,
         ]);
-
-        $post->commentary()->create([
-            'user_id' => $request->user_id,
-            'comment' => $request->comment,
-        ]);
-
+        //notifify
+        event(new \App\Events\Message([
+            'comment' => [
+                'commentary' => $request->commentary,
+                'user' => auth()->user(),
+                'post_id' => $post->id,
+            ],
+        ]));
         return response()->json([
             'message' => 'Comment created successfully',
             'post' => $post,
         ], 201);
     }
 
-    public function deleteComment(Post $post, $commentId)
+    public function deleteComment(Request $request, Post $post)
     {
-        $post->commentary()->where('id', $commentId)->delete();
+        $post->commentary()->where('id', $request->commentary)->delete();
 
         return response()->json([
             'message' => 'Comment deleted successfully',
@@ -130,8 +152,9 @@ class PostController extends Controller
 
     public function likeComment(Post $post, $commentId)
     {
-        $post->commentary()->where('id', $commentId)->increment('likes');
-
+        $post->commentary()->likes()->create([
+            'user_id' => auth()->user()->id,
+        ]);
         return response()->json([
             'message' => 'Comment liked successfully',
             'post' => $post,
@@ -140,8 +163,7 @@ class PostController extends Controller
 
     public function dislikeComment(Post $post, $commentId)
     {
-        $post->commentary()->where('id', $commentId)->decrement('likes');
-
+        $post->commentary()->where('id', $commentId)->first()->likes()->where('user_id', auth()->user()->id)->delete();
         return response()->json([
             'message' => 'Comment disliked successfully',
             'post' => $post,
@@ -194,5 +216,14 @@ class PostController extends Controller
             'message' => 'Reply disliked successfully',
             'post' => $post,
         ], 200);
+    }
+
+    public function home(Request $request)
+    {
+        $user = $request->user();
+        $friends = Friends::where('user_id', $user->id)->get();
+        $friends->push($user);
+        //return post of array of friends sort by date and paginate 10
+        return PostsRessource::collection(Post::whereIn('user_id', $friends->pluck('friend_id'))->orderBy('created_at', 'desc')->paginate(8));
     }
 }

@@ -3,6 +3,7 @@
 use App\Events\Message;
 use App\Events\Test;
 use App\Http\Controllers\MailController;
+use App\Http\Controllers\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -28,7 +29,7 @@ Route::post('login', [UserController::class, 'login']);
 //logout user with function logout on UserController
 Route::post('logout', [UserController::class, 'logout'])->middleware(['auth:api', 'scope:user']);
 //get all users with function index on UserController only if your are connected
-Route::get('user', [UserController::class, 'index'])->middleware(['auth:api', 'scope:admin']); 
+Route::get('user', [UserController::class, 'index'])->middleware(['auth:api', 'scope:admin']);
 //delete user with function delete on UserController only if you are admin
 Route::delete('user/{id}', [UserController::class, 'delete'])->middleware(['auth:api', 'scope:admin']);
 //get user with function show on UserController
@@ -53,17 +54,34 @@ Route::post('/email/verify/resend', function (Request $request) {
 //reset password
 Route::post('/forgot-password', [UserController::class, 'forgotPassword'])->name('password.email');
 //redirect to frontend after reset password
-Route::get('/reset-password/{token}', function (string $token) {return redirect(env('FRONTEND_URL') . '/reset-password?token=' . $token);})->name('password.reset');
+Route::get('/reset-password/{token}', function (string $token) {
+    return redirect(env('FRONTEND_URL') . '/reset-password?token=' . $token);
+})->name('password.reset');
 
 Route::post('/reset-password', [UserController::class, 'resetPassword'])->name('password.update');
 
 
-Route::get('/test', function ( Request $request ) {
-   event(new Test( $request->data));
-   return 'event fired';
-});
+/* Post routes */
 
-Route::get('/message', function ( Request $request ) {
-    event(new Message( $request->data));
-   return 'event fired';
+//user function home on UserController
+Route::get('post/post/home', [PostController::class, 'home'])->middleware(['auth:api', 'scope:user']);
+Route::resource('post', PostController::class)->middleware(['auth:api', 'scope:user']);
+Route::post('post/{post}/comment', [PostController::class, 'comment'])->middleware(['auth:api', 'scope:user']);
+Route::post('post/{post}/like', [PostController::class, 'like'])->middleware(['auth:api', 'scope:user']);
+Route::post('post/{post}/dislike', [PostController::class, 'dislike'])->middleware(['auth:api', 'scope:user']);
+
+/* Commentaries routes */
+
+
+/* event routes */
+
+//test event
+Route::get('/test', function (Request $request) {
+    event(new Test($request->data));
+    return 'event fired';
+});
+//test event
+Route::get('/message', function (Request $request) {
+    event(new Message($request->data));
+    return 'event fired';
 })->middleware(['auth:api', 'scope:user']);
