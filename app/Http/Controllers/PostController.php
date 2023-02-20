@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\PostsRessource;
+use Illuminate\Support\Collection;
 use App\Models\Friends;
 use App\Models\Post;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -24,24 +28,40 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required|string',
             'body' => 'required|string',
-            'user_id' => 'required|uuid',
-            'images' => 'sometimes|nullable|array',
+            'images' => 'sometimes|nullable|array|max:5',
         ]);
 
-        $post = Post::create($request->all());
-
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
+        $post = Post::create([
+            'title' => $request->title,
+            'body' => $request->body,
+            'user_id' => auth()->user()->id,
+        ]);
+        if ($request->images) {
+            foreach ($request->images as $image) {
+                //get size in bytes of image
+                $size = (strlen(rtrim($image, '=')) * 3) / 4;
+                //it's form 'data:image/ + type + ;base64,'
+                $type = explode('/', explode(';', $image)[0])[1];
+                $image = str_replace('data:image/' . $type . ';base64,', '', $image);
+                $image = str_replace(' ', '+', $image);
+                $imageName = $post->id . '_' . uniqid() . '.' . $type;
+                //if image is bigger than 2MB, compress it
+                if ($size > 2097152) {
+                    $image = imagecreatefromstring(base64_decode($image));
+                    imagejpeg($image, storage_path('app/public/images/' . $imageName), 30);
+                } else {
+                    Storage::disk('public')->put('images/' . $imageName, base64_decode($image));
+                }
                 $post->images()->create([
-                    'image' => $image->store('images', 'public'),
-                    'user_id' => $request->user_id,
+                    'image' => $imageName,
+                    'user_id' => auth()->user()->id,
                 ]);
             }
         }
 
         return response()->json([
             'message' => 'Post created successfully',
-            'post' => $post,
+            'post' => PostsRessource::make($post),
         ], 201);
     }
 
@@ -56,18 +76,9 @@ class PostController extends Controller
 
         $post->update($request->all());
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $post->images()->create([
-                    'image' => $image->store('images', 'public'),
-                    'user_id' => $request->user_id,
-                ]);
-            }
-        }
-
         return response()->json([
             'message' => 'Post updated successfully',
-            'post' => $post,
+            'post' => PostsRessource::make($post),
         ], 200);
     }
 
@@ -86,7 +97,6 @@ class PostController extends Controller
             'user_id' => auth()->user()->id,
         ]);
         $post->save();
-
         //create message event
         event(new \App\Events\Message([
             'like' => [
@@ -130,6 +140,7 @@ class PostController extends Controller
         event(new \App\Events\Message([
             'comment' => [
                 'commentary' => $request->commentary,
+                'created_at' => Carbon::now()->diffForHumans(),
                 'user' => auth()->user(),
                 'post_id' => $post->id,
             ],
@@ -220,10 +231,36 @@ class PostController extends Controller
 
     public function home(Request $request)
     {
-        $user = $request->user();
-        $friends = Friends::where('user_id', $user->id)->get();
-        $friends->push($user);
-        //return post of array of friends sort by date and paginate 10
-        return PostsRessource::collection(Post::whereIn('user_id', $friends->pluck('friend_id'))->orderBy('created_at', 'desc')->paginate(8));
+        $user = auth()->user();
+        $userPosts = Post::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        $friends = Friends::where('user_id', $user->id)->where('accepted', true)->get();
+        //merge friends posts to user posts
+        foreach ($friends as $friend) {
+            $friendPosts = Post::where('user_id', $friend->friend_id)->orderBy('created_at', 'desc')->get();
+            $userPosts = $userPosts->merge($friendPosts);
+        }
+
+
+
+        //sort posts by date
+        $sortedPosts = $userPosts->sortByDesc('created_at');
+        $perPage = 8;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $currentPageItems = $sortedPosts->slice(($currentPage - 1) * $perPage, $perPage);
+        $paginatedPosts = new LengthAwarePaginator($currentPageItems, $sortedPosts->count(), $perPage, $currentPage);
+        return PostsRessource::collection($paginatedPosts);
+    }
+
+    public function searchPosts(Request $request)
+    {
+        $friends_blocked = Friends::where('user_id', auth()->user()->id)->where('is_blocked', false)->get();
+
+        $post = Post::where('title', 'like', '%' . $request->search . '%')
+            ->orWhere('body', 'like', '%' . $request->search . '%')
+            ->whereNotIn('user_id', $friends_blocked->pluck('friend_id'))
+            ->where('is_private', false)->paginate(5);
+
+
+        return PostsRessource::collection($post);
     }
 }

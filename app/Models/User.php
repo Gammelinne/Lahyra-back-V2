@@ -91,4 +91,5 @@ class User extends Authenticatable implements MustVerifyEmail
         //create new token
         return $this->is_admin ? $this->createToken('admin', ['admin', 'user']) : $this->createToken('user', ['user']);
     }
+
 }

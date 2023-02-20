@@ -2,11 +2,11 @@
 
 namespace App\Http\Resources;
 
-use Carbon\Carbon;
+use App\Models\Friends;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CommentsRessource extends JsonResource
+class FriendsRessource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +16,9 @@ class CommentsRessource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'commentary' => $this->commentary,
-            'created_at' => Carbon::parse($this->created_at)->diffForHumans(),
-            'user' => $this->user,
+            'friend_id' => $this->friend_id,
+            'accepted' => $this->accepted,
+            'user' => $this->friend,
         ];
     }
 }

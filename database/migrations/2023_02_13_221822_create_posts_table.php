@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('title');
-            $table->string('body');
+            $table->string('title', 100);
+            $table->string('body', 1500);
             $table->integer('reposts')->default(0);
+            $table->boolean('is_private')->default(false);
             $table->uuid('user_id')->constrained('users')->onDelete('cascade');
             $table->uuid('post_id')->nullable()->constrained('posts')->onDelete('cascade'); //for reposts
             $table->timestamps();

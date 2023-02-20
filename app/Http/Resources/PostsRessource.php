@@ -2,9 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Post;
+use App\Models\PostsLikes;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\DB;
 
 class PostsRessource extends JsonResource
 {
@@ -19,15 +23,15 @@ class PostsRessource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'body' => $this->body,
-            'created_at' => Carbon::parse($this->created_at)->diffForHumans(),
             'likes_count' => $this->likes->count(),
             'likes' => $this->likes,
             'user' => $this->user,
             'comments_count' => $this->comments->count(),
-            'comments' => CommentsRessource::collection($this->comments),
-            'images' => $this->images,
-            //objectif is recuperate if user is like this post
-            'is_like' => $this->likes->contains('user_id', auth()->user()->id),
+            //get 100 last comments
+            'comments' => CommentsRessource::collection($this->comments)->sortByDesc('created_at'),
+            'images' => ImagesRessource::collection($this->images),
+            'is_like' => PostsLikes::where('user_id', auth()->user()->id)->where('post_id', $this->id)->exists(),
+            'created_at' => Carbon::parse($this->created_at)->diffForHumans(),
         ];
     }
 }

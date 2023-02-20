@@ -23,7 +23,7 @@ class UserFactory extends Factory
             'bio' => fake()->sentence(20),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => rand(0, 1) ? now() : null,
-            'avatar' => fake()->imageUrl(640, 480, 'cats', true),
+            'avatar' => 'https://www.w3schools.com/howto/img_avatar.png',
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
         ];
     }

@@ -16,6 +16,7 @@ class Post extends Model
         'body',
         'likes',
         'user_id',
+        'is_private'
     ];
 
     public function user()

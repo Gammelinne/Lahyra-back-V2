@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('posts_commentaries', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('commentary');
+            $table->string('commentary', 500);
             $table->uuid('post_id')->constrained('posts')->onDelete('cascade');
             $table->uuid('user_id')->constrained('users')->onDelete('cascade');
             $table->uuid('commentary_id')->nullable()->constrained('posts_commentaries')->onDelete('cascade');

@@ -2,11 +2,10 @@
 
 namespace App\Http\Resources;
 
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CommentsRessource extends JsonResource
+class ImagesRessource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,9 +16,9 @@ class CommentsRessource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'commentary' => $this->commentary,
-            'created_at' => Carbon::parse($this->created_at)->diffForHumans(),
-            'user' => $this->user,
+            //return the image url from the storage/app/public/images folder
+            'image' => asset('storage/images/' . $this->image),
+            'post_id' => $this->post_id,
         ];
     }
 }

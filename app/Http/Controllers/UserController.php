@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Events\Test;
+use App\Http\Resources\PostsRessource;
+use App\Http\Resources\UserInfoRessource;
 use App\Http\Resources\UserResource;
 use App\Models\Friends;
+use App\Models\Post;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\PasswordReset;
@@ -23,9 +26,10 @@ class UserController extends Controller
     }
 
     /* get user */
-    public function show(User $user)
+    public function show()
     {
-        return $user;
+        //create pagination
+        return UserInfoRessource::make(auth()->user());
     }
 
     /* update user */
@@ -48,11 +52,13 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string',
+            'username' => 'required|string|unique:users',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string|confirmed', //password_confirmation is required
         ]);
         User::create([
             'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'is_admin' => $request->admin_password == env('ADMIN_KEY') ? true : false,
@@ -168,5 +174,38 @@ class UserController extends Controller
         return $status === Password::PASSWORD_RESET
             ? response()->json(['message' => __($status)])
             : response()->json(['message' => __($status)]);
+    }
+
+    public function updateOwn(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users,email,' . auth()->user()->id,
+            'username' => 'required|string|unique:users,username,' . auth()->user()->id,
+            'bio' => 'string',
+
+
+        ]);
+        User::where('id', auth()->user()->id)->update($request->all());
+
+        return response()->json([
+            'message' => 'User updated successfully'
+        ], 200);
+    }
+
+    public function searchUsers(Request $request)
+    {
+        //return all users and posts where user.friends.is_blocked = false and post.is_private = false
+        $friends_blocked = Friends::where('user_id', auth()->user()->id)->where('is_blocked', true)->get();
+
+        $users = UserResource::collection(User::where('name', 'like', '%' . $request->search . '%')
+            ->orWhere('username', 'like', '%' . $request->search . '%')
+            ->orWhere('email', 'like', '%' . $request->search . '%')
+            ->whereNotIn('id', $friends_blocked->pluck('friend_id'))->paginate(5));
+
+
+
+
+        return $users;
     }
 }
