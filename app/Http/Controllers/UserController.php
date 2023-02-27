@@ -14,6 +14,7 @@ use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
@@ -202,10 +203,19 @@ class UserController extends Controller
             ->orWhere('username', 'like', '%' . $request->search . '%')
             ->orWhere('email', 'like', '%' . $request->search . '%')
             ->whereNotIn('id', $friends_blocked->pluck('friend_id'))->paginate(5));
-
-
-
-
         return $users;
+    }
+
+    public function getUserByUsername(Request $request)
+    {
+        Log::info($request->username);
+        $user = User::where('username', $request->username)->first();
+        Log::info($user);
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
+        }
+        return UserInfoRessource::make($user);
     }
 }

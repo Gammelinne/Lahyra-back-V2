@@ -37,7 +37,7 @@ return [
             'app_id' => env('PUSHER_APP_ID'),
             'options' => [
                 //'host' => '192.168.1.27', //home
-                'host' => '192.168.203.114', //Stage
+                'host' => '192.168.23.114', //Stage
                 'port' => 6001, 
                 'scheme' => env('MODE_ENV') === 'production' ? 'https' : 'http',
                 'encrypted' => env('MODE_ENV') === 'production' ? true : false,

@@ -17,7 +17,7 @@ class UserInfoRessource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'avatar' => $this->avatar,
+            'avatar' => $this->avatar ?? 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->email))) . '?s=200&d=mm',
             'username' => $this->username,
             'bio' => $this->bio,
             'is_admin' => $this->is_admin,
@@ -26,6 +26,8 @@ class UserInfoRessource extends JsonResource
             'email' => $this->email,
             //friends array to object
             'friends' => FriendsRessource::collection($this->friends),
+            'is_friend' => Friends::where('user_id', auth()->user()->id)->where('friend_id', $this->id)->where('accepted', true)->exists(),
+            'is_friend_request' => Friends::where('user_id', auth()->user()->id)->where('friend_id', $this->id)->where('accepted', false)->exists(),
             //get post of user paginate
             'posts' => PostsRessource::collection($this->posts)->sortByDesc('created_at'),
         ];

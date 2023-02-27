@@ -34,7 +34,7 @@ Route::get('user/user/getinfos', [UserController::class, 'show'])->middleware(['
 //update user with function update on UserController
 Route::put('user/user/updateown', [UserController::class, 'updateOwn'])->middleware(['auth:api', 'scope:user']);
 Route::get('user/user/search' , [UserController::class, 'searchUsers'])->middleware(['auth:api', 'scope:user']);
-
+Route::get("user/user/username", [UserController::class, 'getUserByUsername'])->middleware(['auth:api', 'scope:user']);
 
 /* Log routes */
 Route::post('register', [UserController::class, 'create']);
