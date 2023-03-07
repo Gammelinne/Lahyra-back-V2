@@ -218,4 +218,67 @@ class UserController extends Controller
         }
         return UserInfoRessource::make($user);
     }
+
+    public function deletePost(Post $post)
+    {
+        //check if user is owner of post
+        if ($post->user_id != auth()->user()->id) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
+        }else{
+            $post->delete();
+            return response()->json([
+                'message' => 'Post deleted successfully'
+            ], 200);
+        }
+    }
+
+    public function inviteFriend(Request $request){
+        //request->username
+        $user = User::where('username', $request->username)->first();
+        if(!$user){
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
+        }
+        $friend = Friends::where('user_id', auth()->user()->id)->where('friend_id', $user->id)->first();
+        if($friend){
+            return response()->json([
+                'message' => 'User is already your friend'
+            ], 400);
+        } else {
+            Friends::create([
+                'user_id' => $user->id,
+                'friend_id' => auth()->user()->id,
+                'is_blocked' => false,
+                'is_accepted' => false,
+            ]);
+            return response()->json([
+                'message' => 'Friend request sent'
+            ], 200);
+        }
+    }
+
+    public function acceptFriend(Request $request){
+        //request->username
+        $user = User::where('username', $request->username)->first();
+        if(!$user){
+            return response()->json([
+                'message' => 'User not found'
+            ], 404);
+        }
+        $friend = Friends::where('user_id', auth()->user()->id)->where('friend_id', $user->id)->first();
+        if($friend){
+            $friend->is_accepted = true;
+            $friend->save();
+            return response()->json([
+                'message' => 'Friend request accepted'
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Friend request not found'
+            ], 404);
+        }
+    }
 }

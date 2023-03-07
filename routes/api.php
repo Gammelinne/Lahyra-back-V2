@@ -35,6 +35,10 @@ Route::get('user/user/getinfos', [UserController::class, 'show'])->middleware(['
 Route::put('user/user/updateown', [UserController::class, 'updateOwn'])->middleware(['auth:api', 'scope:user']);
 Route::get('user/user/search' , [UserController::class, 'searchUsers'])->middleware(['auth:api', 'scope:user']);
 Route::get("user/user/username", [UserController::class, 'getUserByUsername'])->middleware(['auth:api', 'scope:user']);
+Route::delete('user/post/delete/{post}', [UserController::class, 'deletePost'])->middleware(['auth:api', 'scope:user']);
+
+Route::post('user/friend/invite', [UserController::class, 'inviteFriend'])->middleware(['auth:api', 'scope:user']);
+Route::post('user/friend/accept', [UserController::class, 'acceptFriend'])->middleware(['auth:api', 'scope:user']);
 
 /* Log routes */
 Route::post('register', [UserController::class, 'create']);
