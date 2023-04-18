@@ -28,7 +28,7 @@ Route::post('user', [UserController::class, 'create']);
 //get all users with function index on UserController only if your are connected
 Route::get('user', [UserController::class, 'index'])->middleware(['auth:api', 'scope:admin']);
 //delete user with function delete on UserController only if you are admin
-Route::delete('user/{id}', [UserController::class, 'delete'])->middleware(['auth:api', 'scope:admin']);
+Route::delete('user/user/delete', [UserController::class, 'delete'])->middleware(['auth:api', 'scope:admin']);
 //get user with function show on UserController
 Route::get('user/user/getinfos', [UserController::class, 'show'])->middleware(['auth:api', 'scope:user']);
 //update user with function update on UserController
