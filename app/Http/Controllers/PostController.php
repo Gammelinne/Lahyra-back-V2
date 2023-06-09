@@ -22,7 +22,26 @@ class PostController extends Controller
     {
         return $post;
     }
-
+    //create
+    public function create(Request $request)
+    {
+        return 'create';
+    }
+    //edit
+    public function edit(Post $post)
+    {
+        return 'edit';
+    }
+    //destroy
+    public function destroy(Post $post)
+    {
+        return 'destroy';
+    }
+    //image
+    public function image(Post $post)
+    {
+        return 'image';
+    }
     public function store(Request $request)
     {
         $request->validate([
